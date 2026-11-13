@@ -53,7 +53,7 @@ It replaces paper and spreadsheets with role-based dashboards for the admin, rec
 ### Installation
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/gym-management.git
+git clone https://github.com/kawtar-bougajgal/gym-management.git
 cd gym-management
 composer install
 npm install
