@@ -5,18 +5,21 @@
         class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-5 sm:p-6 rounded-14 shadow-card border border-line">
         <div>
             <div class="flex items-center gap-2 text-xs text-muted mb-1 font-sans">
-                <a href="{{ route('members.index') }}" class="hover:text-orange transition-colors">Members</a>
+                <a href="{{ route('members.index') }}"
+                    class="hover:text-orange transition-colors">{{ __('messages.all_members') }}</a>
                 <span class="text-line">/</span>
                 <span class="text-orange font-semibold">{{ $member->name }}</span>
             </div>
             <h1 class="text-2xl font-bold text-text tracking-tight font-sans">{{ $member->name }}</h1>
-            <p class="text-sm text-muted font-mono mt-0.5">Member since
-                {{ $member->created_at->format('M j, Y') }}</p>
+            <p class="text-sm text-muted mt-0.5">
+                {{ __('messages.member_since') }}
+                {{ $member->created_at->locale(app()->getLocale())->isoFormat('D MMM YYYY') }}
+            </p>
         </div>
         <div class="flex items-center gap-3 sm:gap-4">
-            <div class="hidden sm:block text-right">
+            <div class="hidden sm:block text-end">
                 <div class="text-sm font-semibold text-text font-sans">{{ Auth::user()->name }}</div>
-                <div class="text-xs text-muted font-sans">Receptionist</div>
+                <div class="text-xs text-muted font-sans">{{ __('messages.receptionist_role') }}</div>
             </div>
             <div
                 class="w-10 h-10 rounded-full bg-orange-dim text-orange flex items-center justify-center font-bold text-sm font-mono tracking-wider border border-orange/10 flex-shrink-0">
@@ -58,9 +61,15 @@
                                 'expired' => 'danger',
                                 default => 'neutral',
                             };
+                            $memberStatusLabel = match ($member->status) {
+                                'active' => __('messages.active'),
+                                'expiring' => __('messages.expiring'),
+                                'expired' => __('messages.expired'),
+                                default => __('messages.no_plan'),
+                            };
                         @endphp
                         <x-gym.badge :variant="$memberVariant">
-                            {{ ucfirst(str_replace('_', ' ', $member->status)) }}
+                            {{ $memberStatusLabel }}
                         </x-gym.badge>
                     </div>
                 </div>
@@ -68,26 +77,31 @@
                 <hr class="border-line my-4">
 
                 <div class="space-y-4">
-                    <div class="flex justify-between items-center py-1">
-                        <span class="text-xs text-muted font-bold uppercase tracking-wider font-sans">Email</span>
+                    <div class="flex justify-between items-center py-1 gap-3">
                         <span
-                            class="text-sm font-medium text-text font-mono truncate max-w-[60%] text-right">{{ $member->email ?? '—' }}</span>
+                            class="text-xs text-muted font-bold uppercase tracking-wider font-sans">{{ __('messages.email') }}</span>
+                        <span dir="ltr"
+                            class="text-sm font-medium text-text font-mono truncate max-w-[60%]">{{ $member->email ?? '—' }}</span>
                     </div>
-                    <div class="flex justify-between items-center py-1">
-                        <span class="text-xs text-muted font-bold uppercase tracking-wider font-sans">Phone</span>
+                    <div class="flex justify-between items-center py-1 gap-3">
                         <span
+                            class="text-xs text-muted font-bold uppercase tracking-wider font-sans">{{ __('messages.phone') }}</span>
+                        <span dir="ltr"
                             class="text-sm font-semibold text-text font-mono tracking-wide">{{ $member->phone }}</span>
                     </div>
-                    <div class="flex justify-between items-center py-1">
-                        <span class="text-xs text-muted font-bold uppercase tracking-wider font-sans">Age</span>
-                        <span class="text-sm font-medium text-text font-mono">{{ $member->age ?? '—' }}
-                            years</span>
-                    </div>
-                    <div class="flex justify-between items-center py-1">
-                        <span class="text-xs text-muted font-bold uppercase tracking-wider font-sans">Joined
-                            Date</span>
+                    <div class="flex justify-between items-center py-1 gap-3">
                         <span
-                            class="text-sm font-medium text-text font-mono">{{ $member->created_at->format('M j, Y') }}</span>
+                            class="text-xs text-muted font-bold uppercase tracking-wider font-sans">{{ __('messages.age') }}</span>
+                        <span class="text-sm font-medium text-text font-mono">
+                            {{ $member->age ? __('messages.years_count', ['count' => $member->age]) : '—' }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 gap-3">
+                        <span
+                            class="text-xs text-muted font-bold uppercase tracking-wider font-sans">{{ __('messages.joined_date') }}</span>
+                        <span class="text-sm font-medium text-text font-mono">
+                            {{ $member->created_at->locale(app()->getLocale())->isoFormat('D MMM YYYY') }}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -96,7 +110,7 @@
         {{-- Card 2: Active Subscription --}}
         <div class="bg-surface p-6 rounded-14 border border-line shadow-card flex flex-col justify-between">
             <div>
-                <x-gym.sec-header title="Current Subscription" />
+                <x-gym.sec-header :title="__('messages.current_subscription')" />
 
                 @php
                     $activeSub = $member->latestSubscription;
@@ -114,23 +128,26 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            {{ $activeSub->plan->duration }} Days Plan Duration
+                            {{ __('messages.plan_duration_days', ['count' => $activeSub->plan->duration]) }}
                         </div>
                     </div>
 
                     <div class="space-y-4">
                         <div class="flex justify-between items-center py-0.5">
-                            <span class="text-sm text-muted font-sans">Start Date</span>
-                            <span
-                                class="text-sm font-medium text-text font-mono">{{ \Carbon\Carbon::parse($activeSub->start_date)->format('M j, Y') }}</span>
+                            <span class="text-sm text-muted font-sans">{{ __('messages.start_date') }}</span>
+                            <span class="text-sm font-medium text-text font-mono">
+                                {{ \Carbon\Carbon::parse($activeSub->start_date)->locale(app()->getLocale())->isoFormat('D MMM YYYY') }}
+                            </span>
                         </div>
                         <div class="flex justify-between items-center py-0.5">
-                            <span class="text-sm text-muted font-sans">End Date</span>
-                            <span
-                                class="text-sm font-medium text-text font-mono">{{ \Carbon\Carbon::parse($activeSub->end_date)->format('M j, Y') }}</span>
+                            <span class="text-sm text-muted font-sans">{{ __('messages.end_date') }}</span>
+                            <span class="text-sm font-medium text-text font-mono">
+                                {{ \Carbon\Carbon::parse($activeSub->end_date)->locale(app()->getLocale())->isoFormat('D MMM YYYY') }}
+                            </span>
                         </div>
                         <div class="flex justify-between items-center pt-2 border-t border-line">
-                            <span class="text-sm font-semibold text-text font-sans">Days Remaining</span>
+                            <span
+                                class="text-sm font-semibold text-text font-sans">{{ __('messages.days_remaining') }}</span>
                             @php
                                 $daysLeft = max(
                                     0,
@@ -140,7 +157,7 @@
                             @endphp
                             <span
                                 class="text-base font-bold font-mono px-2.5 py-0.5 rounded-full {{ $isUrgent ? 'bg-red/10 text-red' : 'bg-green/10 text-green' }}">
-                                {{ $daysLeft }} days
+                                {{ __('messages.days_count', ['count' => $daysLeft]) }}
                             </span>
                         </div>
                     </div>
@@ -150,12 +167,13 @@
                             {{ $activeSub->plan->name }}
                         </div>
                         <div class="text-xs text-red/70 font-mono mt-1">
-                            Expired on {{ \Carbon\Carbon::parse($activeSub->end_date)->format('M j, Y') }}
+                            {{ __('messages.expired_on') }}
+                            {{ \Carbon\Carbon::parse($activeSub->end_date)->locale(app()->getLocale())->isoFormat('D MMM YYYY') }}
                         </div>
                     </div>
-                    <x-gym.btn type="orange" size="sm"
+                    <x-gym.btn variant="orange" size="sm"
                         href="{{ route('subscriptions.index') }}?new=1&member_id={{ $member->id }}">
-                        Renew Subscription
+                        {{ __('messages.renew_subscription') }}
                     </x-gym.btn>
                 @else
                     <div
@@ -167,15 +185,15 @@
                                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <p class="text-sm text-muted font-medium font-sans">No subscription found for this
-                            member.</p>
-                        <x-gym.btn type="orange" size="sm"
+                        <p class="text-sm text-muted font-medium font-sans">{{ __('messages.no_subscription_found') }}
+                        </p>
+                        <x-gym.btn variant="orange" size="sm"
                             href="{{ route('subscriptions.index') }}?new=1&member_id={{ $member->id }}">
-                            <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            <svg class="w-4 h-4 me-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                 stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                             </svg>
-                            Add Subscription
+                            {{ __('messages.add_subscription') }}
                         </x-gym.btn>
                     </div>
                 @endif
@@ -186,17 +204,17 @@
 
     {{-- Card 3: Subscription History Table --}}
     <div class="bg-surface p-6 rounded-14 border border-line shadow-card space-y-4">
-        <x-gym.sec-header title="Subscription History" />
+        <x-gym.sec-header :title="__('messages.subscription_history')" />
 
         <div class="overflow-x-auto rounded-12 border border-line">
-            <table class="w-full text-left border-collapse min-w-[500px]">
+            <table class="w-full text-start border-collapse min-w-[500px]">
                 <thead>
                     <tr
                         class="bg-page text-muted uppercase text-[11px] font-bold tracking-wider font-sans border-b border-line">
-                        <th class="py-3.5 px-5">Plan</th>
-                        <th class="py-3.5 px-5">Start Date</th>
-                        <th class="py-3.5 px-5">End Date</th>
-                        <th class="py-3.5 px-5">Status</th>
+                        <th class="py-3.5 px-5 text-start">{{ __('messages.plan') }}</th>
+                        <th class="py-3.5 px-5 text-start">{{ __('messages.start_date') }}</th>
+                        <th class="py-3.5 px-5 text-start">{{ __('messages.end_date') }}</th>
+                        <th class="py-3.5 px-5 text-start">{{ __('messages.status') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-line text-sm">
@@ -208,24 +226,32 @@
                                 'expired' => 'danger',
                                 default => 'neutral',
                             };
+                            $subStatusLabel = match ($sub->computed_status) {
+                                'active' => __('messages.active'),
+                                'expiring' => __('messages.expiring'),
+                                'expired' => __('messages.expired'),
+                                default => __('messages.no_plan'),
+                            };
                         @endphp
                         <tr class="hover:bg-page/20 transition-colors">
                             <td class="py-4 px-5 font-semibold text-text font-sans">
                                 {{ $sub->plan->name ?? '—' }}</td>
                             <td class="py-4 px-5 text-muted font-mono">
-                                {{ \Carbon\Carbon::parse($sub->start_date)->format('M j, Y') }}</td>
+                                {{ \Carbon\Carbon::parse($sub->start_date)->locale(app()->getLocale())->isoFormat('D MMM YYYY') }}
+                            </td>
                             <td class="py-4 px-5 text-muted font-mono">
-                                {{ \Carbon\Carbon::parse($sub->end_date)->format('M j, Y') }}</td>
+                                {{ \Carbon\Carbon::parse($sub->end_date)->locale(app()->getLocale())->isoFormat('D MMM YYYY') }}
+                            </td>
                             <td class="py-4 px-5">
                                 <x-gym.badge :variant="$subVariant">
-                                    {{ ucfirst($sub->computed_status) }}
+                                    {{ $subStatusLabel }}
                                 </x-gym.badge>
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="4" class="py-8 text-center text-muted font-sans font-medium bg-page/10">
-                                No subscription history yet.
+                                {{ __('messages.no_subscription_history') }}
                             </td>
                         </tr>
                     @endforelse
@@ -236,55 +262,55 @@
 
     {{-- Card 4: Payment History Table --}}
     <div class="bg-surface p-6 rounded-14 border border-line shadow-card space-y-4">
-        <x-gym.sec-header title="Payment History" />
+        <x-gym.sec-header :title="__('messages.payment_history')" />
 
         <div class="overflow-x-auto rounded-12 border border-line">
-            <table class="w-full text-left border-collapse min-w-[560px]">
+            <table class="w-full text-start border-collapse min-w-[560px]">
                 <thead>
                     <tr
                         class="bg-page text-muted uppercase text-[11px] font-bold tracking-wider font-sans border-b border-line">
-                        <th class="py-3.5 px-5">Paid Date</th>
-                        <th class="py-3.5 px-5">Membership Plan</th>
-                        <th class="py-3.5 px-5">Amount Paid</th>
-                        <th class="py-3.5 px-5">Payment Method</th>
+                        <th class="py-3.5 px-5 text-start">{{ __('messages.paid_date') }}</th>
+                        <th class="py-3.5 px-5 text-start">{{ __('messages.membership_plan') }}</th>
+                        <th class="py-3.5 px-5 text-start">{{ __('messages.amount_paid') }}</th>
+                        <th class="py-3.5 px-5 text-start">{{ __('messages.payment_method') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-line text-sm">
                     @forelse($member->payments as $payment)
                         <tr class="hover:bg-page/20 transition-colors">
                             <td class="py-4 px-5 text-muted font-mono">
-                                {{ \Carbon\Carbon::parse($payment->paid_at)->format('M j, Y') }}
+                                {{ \Carbon\Carbon::parse($payment->paid_at)->locale(app()->getLocale())->isoFormat('D MMM YYYY') }}
                             </td>
                             <td class="py-4 px-5 font-semibold text-text font-sans">
                                 {{ $payment->subscription->plan->name ?? '—' }}
                             </td>
                             <td class="py-4 px-5">
                                 <div class="flex flex-col gap-1 items-start">
-                                    <span
+                                    <span dir="ltr"
                                         class="inline-block px-2.5 py-1 bg-orange-light text-orange rounded-md font-bold font-mono text-xs border border-orange/10">
                                         {{ number_format($payment->amount, 2) }} MAD
                                     </span>
                                     @if ($payment->fee_waived)
-                                        <span title="{{ $payment->waived_reason ?? 'No reason given' }}"
+                                        <span title="{{ $payment->waived_reason ?? __('messages.no_reason_given') }}"
                                             class="inline-flex items-center gap-1 text-[10px] font-semibold py-[2px] px-[7px] rounded-full bg-yellow-bg text-yellow border border-yellow/20 cursor-help">
                                             <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24"
                                                 stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                     d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
                                             </svg>
-                                            Fee Waived
+                                            {{ __('messages.fee_waived') }}
                                         </span>
                                     @endif
                                 </div>
                             </td>
-                            <td class="py-4 px-5 text-muted font-sans capitalize font-medium">
-                                {{ $payment->method }}
+                            <td class="py-4 px-5 text-muted font-sans font-medium">
+                                {{ __('messages.' . $payment->method) }}
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="4" class="py-8 text-center text-muted font-sans font-medium bg-page/10">
-                                No payments recorded yet.
+                                {{ __('messages.no_payments_recorded') }}
                             </td>
                         </tr>
                     @endforelse
@@ -295,11 +321,12 @@
 
     {{-- Footer Controls --}}
     <div class="flex justify-start pt-2">
-        <x-gym.btn type="ghost" size="sm" href="{{ route('members.index') }}">
-            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <x-gym.btn variant="ghost" size="sm" href="{{ route('members.index') }}">
+            <svg class="w-4 h-4 me-2 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Members List
+            {{ __('messages.back_to_members_list') }}
         </x-gym.btn>
     </div>
 

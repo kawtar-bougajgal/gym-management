@@ -355,6 +355,24 @@ return [
     'delete_forever' => 'Supprimer définitivement',
     'confirm_force_delete' => 'Cela supprimera définitivement :name et ne peut pas être annulé. Êtes-vous sûr ?',
     'trash_empty' => 'Aucun membre supprimé. La corbeille est vide.',
+    'member_since' => 'Membre depuis',
+    'years_count' => ':count ans',
+    'joined_date' => 'Date d\'inscription',
+    'plan_duration_days' => 'Durée du plan : :count jours',
+    'days_remaining' => 'Jours restants',
+    'days_count' => ':count jours',
+    'expired_on' => 'Expiré le',
+    'no_subscription_found' => 'Aucun abonnement trouvé pour ce membre.',
+    'add_subscription' => 'Ajouter un abonnement',
+    'subscription_history' => 'Historique des abonnements',
+    'no_subscription_history' => 'Aucun historique d\'abonnement.',
+    'paid_date' => 'Date de paiement',
+    'membership_plan' => 'Formule d\'abonnement',
+    'amount_paid' => 'Montant payé',
+    'fee_waived' => 'Frais offerts',
+    'no_payments_recorded' => 'Aucun paiement enregistré.',
+    'back_to_members_list' => 'Retour à la liste des membres',
+
 
 
 ];
